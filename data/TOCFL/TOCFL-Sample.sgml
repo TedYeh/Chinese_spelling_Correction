@@ -1,0 +1,60 @@
+<ESSAY id="0612" style="記敘文" title="最難忘的購物經驗" score="4" date="2009年5月">
+<LEARNER>
+<L1>韓語</L1>
+<CEFL>B1</CEFL>
+</LEARNER>
+<TEXT>
+<P>
+我在台灣學中文，已經學了快要十個月了。念書的時候，平常在學校的圖書館讀書。可是有時候，我要換換氣氛，而常去我家附近的星巴克讀書。所以一個星期最少去一次，最多去三次。在星巴克讀書，雖然需要付錢，可是我覺得有時候比圖書館好多的地方。
+</P>
+<P>
+我喝咖啡的時候，常喝美式咖啡。所以每次買咖啡的時候，就說「中杯的冰美式咖啡」。然後樓上去一邊喝咖啡，一邊讀書。每次去喝一樣的，也說一樣的，所以那裏的店員都過不了一個月，就知道了這一個特別的外國人。
+</P>
+<P>
+有一天，我去星巴克，也�以前一樣要說「中杯的冰美式咖啡」。可是那時候的店員一看我就說「要中杯的冰美式嗎？」。我忽然被店員弄糊塗了。她剛說的就是我要說的！可是她已經說出來了。那時候我可以說「是」，不過說也奇怪，我不想說了，不要同意她說的！所以我就說「不是！我要熱的！」。店員就笑起來了。
+</P>
+<P>
+熱拿鐵、冰摩卡等等，可以說另外種咖啡。可是我卻說出熱的，真丟人！那時候記得讀書讀得不太好了。以後也不常去那裏的星巴克了。
+</P>
+</TEXT>
+<MISTAKE paragraph="1" start_off="105" end_off="105">
+<TYPE>Mshi</TYPE>
+<CORRECTION>是</CORRECTION>
+</MISTAKE>
+<MISTAKE paragraph="1" start_off="110" end_off="110">
+<TYPE>Mde</TYPE>
+<CORRECTION>得</CORRECTION>
+</MISTAKE>
+<MISTAKE paragraph="2" start_off="42" end_off="42">
+<TYPE>Mv</TYPE>
+<CORRECTION>到</CORRECTION>
+</MISTAKE>
+<MISTAKE paragraph="2" start_off="59" end_off="59">
+<TYPE>Madv</TYPE>
+<CORRECTION>都</CORRECTION>
+</MISTAKE>
+<MISTAKE paragraph="2" start_off="69" end_off="69">
+<TYPE>Mn</TYPE>
+<CORRECTION>話</CORRECTION>
+</MISTAKE>
+<MISTAKE paragraph="2" start_off="77" end_off="77">
+<TYPE>Radv</TYPE>
+<CORRECTION>null</CORRECTION>
+</MISTAKE>
+<MISTAKE paragraph="3" start_off="39" end_off="39">
+<TYPE>Sv</TYPE>
+<CORRECTION>看到</CORRECTION>
+</MISTAKE>
+<MISTAKE paragraph="4" start_off="16" end_off="16">
+<TYPE>Mnum</TYPE>
+<CORRECTION>一</CORRECTION>
+</MISTAKE>
+<MISTAKE paragraph="4" start_off="33" end_off="37">
+<TYPE>Wtime</TYPE>
+<CORRECTION>記得那時候</CORRECTION>
+</MISTAKE>
+<MISTAKE paragraph="4" start_off="45" end_off="45">
+<TYPE>Rasp</TYPE>
+<CORRECTION>null</CORRECTION>
+</MISTAKE>
+</ESSAY>
