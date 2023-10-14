@@ -68,7 +68,7 @@ class ModelArgs:
     model_name: str = None
     model_type: str = None
     multiprocessing_chunksize: int = -1
-    n_gpu: int = 1
+    n_gpu: int = 2
     no_cache: bool = False
     no_save: bool = False
     not_saved_args: list = field(default_factory=list)
@@ -85,7 +85,7 @@ class ModelArgs:
     save_eval_checkpoints: bool = True
     save_model_every_epoch: bool = False
     save_optimizer_and_scheduler: bool = True
-    save_steps: int = 6000
+    save_steps: int = 10000
     scheduler: str = "linear_schedule_with_warmup"
     silent: bool = False
     skip_special_tokens: bool = True
@@ -98,8 +98,8 @@ class ModelArgs:
     use_cached_eval_features: bool = False
     use_early_stopping: bool = False
     use_hf_datasets: bool = False
-    use_multiprocessing: bool = False
-    use_multiprocessing_for_evaluation: bool = False
+    use_multiprocessing: bool = True
+    use_multiprocessing_for_evaluation: bool = True
     wandb_kwargs: dict = field(default_factory=dict)
     wandb_project: str = None
     warmup_ratio: float = 0.06

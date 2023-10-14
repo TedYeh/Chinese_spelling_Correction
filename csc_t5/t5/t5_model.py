@@ -20,7 +20,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm.auto import tqdm, trange
 from transformers import ByT5Tokenizer
 from transformers import MT5Config, MT5ForConditionalGeneration
-from transformers import T5Config, T5ForConditionalGeneration, T5Tokenizer
+from transformers import T5Config, T5ForConditionalGeneration, T5Tokenizer, TextStreamer
 from transformers.optimization import AdamW, Adafactor
 from transformers.optimization import (
     get_constant_schedule,
@@ -68,6 +68,7 @@ class T5Model:
             tokenizer=None,
             use_cuda=has_cuda,
             cuda_device=-1,
+            evaluate=False,
             **kwargs,
     ):
 
@@ -120,7 +121,7 @@ class T5Model:
         self.results = {}
 
         config_class, model_class = MODEL_CLASSES[model_type]
-
+        
         if model_name is None:
             self.config = self.args.config
             self.model = model_class(config=self.config)
@@ -136,30 +137,26 @@ class T5Model:
         else:
             self.tokenizer = T5Tokenizer.from_pretrained(model_name, truncate=True)
         print(len(self.tokenizer))
-        
-        with open('./data/字音混淆集.txt', 'r', encoding='utf-8') as confusion:
-            n = 0
-            for line in confusion.readlines()+[str(chr(c+65248)) for c in range(33, 127)]:
-                token = line.split('　')[0]
-                n+=1
-                self.tokenizer.add_tokens([token])
-        with open('./data/字音混淆集_trad.txt', 'r', encoding='utf-8') as confusion:
-            n = 0
-            for line in confusion.readlines():
-                token = line.split('　')[0]
-                n+=1
-                self.tokenizer.add_tokens([token])
-        with open('./data/wordtest4.txt', 'r', encoding='utf-8') as confusion:
-            for line in confusion.readlines():
-                token = line.split(',')[0]
-                n+=1
-                self.tokenizer.add_tokens([token])
-        with open('./data/vocab.txt', 'r', encoding='utf-8') as confusion:
-            for line in confusion.readlines():
-                n+=1
-                self.tokenizer.add_tokens([line.replace('\n', '')])
-        print(n)
-        
+        if not evaluate:
+            with open('./data/字音混淆集_s13.txt', 'r', encoding='utf-8') as confusion:
+                n = 0
+                for line in confusion.readlines()+[str(chr(c+65248)) for c in range(33, 127)]:
+                    token = line.split('　')[0]
+                    n+=1
+                    self.tokenizer.add_tokens([token])
+            with open('./data/wordtest4.txt', 'r', encoding='utf-8') as confusion:
+                for line in confusion.readlines():
+                    token = line.split(',')[0]
+                    n+=1
+                    self.tokenizer.add_tokens([token])
+            '''
+            with open('./data/vocab.txt', 'r', encoding='utf-8') as confusion:
+                for line in confusion.readlines():
+                    n+=1
+                    self.tokenizer.add_tokens([line.replace('\n', '')])
+            '''
+            print(n)
+        self.streamer = TextStreamer(self.tokenizer)
         print(len(self.tokenizer))
         self.model.resize_token_embeddings(len(self.tokenizer)) 
 
@@ -1071,6 +1068,7 @@ class T5Model:
                 top_k=self.args.top_k,
                 top_p=self.args.top_p,
                 num_return_sequences=self.args.num_return_sequences,
+                #streamer=self.streamer,
             )
             all_outputs.extend(outputs.cpu().numpy())
 

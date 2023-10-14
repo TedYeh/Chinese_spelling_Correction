@@ -7,6 +7,15 @@ from t5.t5_model import T5Model
 
 app = Flask(__name__)
 
+output_dir = './outputs/prompt_1m'
+csc = T5Model('t5', output_dir, args={"eval_batch_size": 1}, cuda_device=-1, evaluate=True)
+
+#output_dir = './outputs/prompt_cgedit'
+#csc_large = T5Model('t5', output_dir, args={"eval_batch_size": 1}, cuda_device=-1, evaluate=True)
+
+output_dir = './outputs/prompt_cgedit'
+cged = T5Model('t5', output_dir, args={"eval_batch_size": 1}, cuda_device=-1, evaluate=True)
+
 help = """
 You can request the service by HTTP get: <br> 
    http://0.0.0.0:5001/macbert_correct?text=我从北京南做高铁到南京南<br>
@@ -17,21 +26,37 @@ Post example: <br>
   curl -H "Content-Type: application/json" -X POST -d '{"text":"我从北京南做高铁到南京南"}' http://0.0.0.0:5001/macbert_correct
 """
 
-async def do_correct(text):
+def compare_str(src, tar): #for csc - compare the input sentence and prediction then tag the different part(location) 
+    loc = 0
+    loc_list = []
+    for s, t in zip(src, tar):
+        if s != t: loc_list.append(loc)
+        loc += 1
+    return loc_list
+
+async def do_correct(model, text):
     return model.predict(text)
 
 @app.route('/t5_correct', methods=['POST', 'GET'])
 async def t5_correct():
-    global model
+    global csc, cged
+    diff_loc_list = []
+    model = {'Spelling-T5-Base': csc, 'Grammar-T5-Base': cged}    
     if request.method == 'POST':
         text = request.form['input']
+        select_model = request.form['models']
+        prompt = {'Spelling-T5-Base': '糾正句子中的錯字：', 'Grammar-T5-Base': request.form['prompt']}
         logger.info("Received data: {}".format(text))
-        results = await do_correct(['糾正句子中的錯字：' + text + "_輸出句："])
-        return render_template('home.html', inp_text=text, results=results)
-    return render_template('home.html', inp_text='', results='')
+        logger.info("Use model: {}".format(select_model))
+        logger.info("Prompt: {}".format(prompt[select_model]))
+        results = await do_correct(model[select_model], [prompt[select_model] + text + "_輸出句："])
+        if len(text) == len(results[0]): diff_loc_list = compare_str(text, results[0])
+        return render_template('home.html', inp_text=text, results=results[0], diff_loc_list=diff_loc_list)
+    src = '為了降低少子化，政府可以堆動獎勵生育的政策。'
+    tar = '為了降低少子化，政府可以推動獎勵生育的政策。'
+    diff_loc_list = compare_str(src, tar)
+    return render_template('home.html', inp_text=src, results=tar, diff_loc_list=diff_loc_list)
 
 
 if __name__ == '__main__':
-    output_dir = './outputs/prompt_csc_3.5e5_prompt_v1_newcorpus'
-    model = T5Model('t5', output_dir, args={"eval_batch_size": 16})
-    app.run(host="0.0.0.0", port=8787, debug=True, use_reloader=True)
+    app.run(host="0.0.0.0", port=8787, debug=True)

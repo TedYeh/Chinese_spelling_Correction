@@ -14,6 +14,7 @@ sys.path.append('../..')
 from t5.t5_model import T5Model
 from t5.copyt5_model import CopyT5Model
 from t5.t5_utils import f1_sim, rouge_l_zh
+from opencc import OpenCC
 
 
 def load_json_data(prefix, file_path, data_type='train'):
@@ -25,6 +26,9 @@ def load_json_data(prefix, file_path, data_type='train'):
             if line:
                 json_string = json.loads(line.strip())
                 if data_type == 'train':
+                    input_text = json_string["original_text"] + "_輸出句："
+                    target_text = json_string["correct_text"]
+                    '''
                     if np.random.choice([True, False], p=[0.5, 0.5]):# and n < 3e4:
                         input_text = '糾正句子中的錯字：' + json_string["original_text"] + "_輸出句："
                         target_text = json_string["correct_text"]
@@ -32,6 +36,7 @@ def load_json_data(prefix, file_path, data_type='train'):
                     else: 
                         input_text = '找到句子中的錯字：' + json_string["original_text"] + "_錯別字："
                         target_text = json_string["wrong_chr"]
+                    '''
                 else:
                     input_text = '糾正句子中的錯字：' + json_string["original_text"] + "_輸出句："
                     #input_text = json_string["original_text"]
@@ -43,13 +48,14 @@ def load_json_data(prefix, file_path, data_type='train'):
                 logger.warning(f'line error: {line}')
         print(n)
     return data
-
+cc = OpenCC('s2twp')  #簡體中文 -> 繁體中文
 def preprocess_function(example):
+    global cc
     original_text, wrong_ids, correct_text = example["original_text"], example["wrong_ids"], example["correct_text"]
-    #example['instruction'] = '对下面中文拼写纠错：'
-    example["prefix"] = '对下面中文拼写纠错：'
-    example['input_text'] = original_text 
-    example['target_text'] = correct_text
+    #example['instruction'] = '对下面中文拼写纠错：'    
+    example["prefix"] = '糾正句子中的錯字：'
+    example['input_text'] = '糾正句子中的錯字：' + cc.convert(original_text) 
+    example['target_text'] = cc.convert(correct_text) 
     return example
 
 
@@ -73,26 +79,26 @@ def normalize(text):
     return ' '.join(text.lower().split())
 
 def main(is_simple = False):
-    parser = argparse.ArgumentParser() #ClueAI/PromptCLUE-base-v1-5 #
-    parser.add_argument('--train_file', default='./data/csc_train_1e6.json', type=str, help='Training data file')
+    parser = argparse.ArgumentParser() #ClueAI/PromptCLUE-base-v1-5 #IDEA-CCNL/Randeng-T5-784M-MultiTask-Chinese
+    parser.add_argument('--train_file', default='./data/cgedit.json', type=str, help='Training data file')
     parser.add_argument('--test_file', default='./data/csc_test.json', type=str, help='Test data file')
     parser.add_argument('--model_type', default='t5', type=str, help='Transformers model type')
-    parser.add_argument('--model_name', default='IDEA-CCNL/Randeng-T5-784M-MultiTask-Chinese', type=str, help='Transformers model or path')
+    parser.add_argument('--model_name', default='ClueAI/PromptCLUE-base-v1-5', type=str, help='Transformers model or path')
     parser.add_argument('--do_train', action='store_true', help='Whether to run training.')
     parser.add_argument('--do_predict', action='store_true', help='Whether to run predict.')
     parser.add_argument('--prefix', default='prompt', type=str, help='Prefix str')
-    parser.add_argument('--output_dir', default='./outputs/large_1e6', type=str, help='Model output directory')
+    parser.add_argument('--output_dir', default='./outputs/prompt_cgedit', type=str, help='Model output directory')
     parser.add_argument('--max_seq_length', default=200, type=int, help='Input max sequence length')
     parser.add_argument('--max_length', default=512, type=int, help='Output max sequence length')
     parser.add_argument('--num_epochs', default=20, type=int, help='Number of training epochs')
-    parser.add_argument('--batch_size', default=16, type=int, help='Batch size')
+    parser.add_argument('--batch_size', default=32, type=int, help='Batch size')
     args = parser.parse_args()
     logger.info(args)
-
+    torch.cuda.set_device(0)
     if args.do_train:
         logger.info('Loading data...')
         if not is_simple:
-            train_data = load_json_data(args.prefix, args.train_file, 'test')
+            train_data = load_json_data(args.prefix, args.train_file, 'train')
             logger.debug('train_data: {}'.format(train_data[:10]))
             train_df = pd.DataFrame(train_data, columns=["prefix", "input_text", "target_text"])
             train_df, eval_df = train_test_split(train_df, test_size=0.05, random_state=2023)
@@ -137,12 +143,12 @@ def main(is_simple = False):
             match = sum([sim_text_chars(label, pred) for label, pred in zip(labels, preds)]) / len(labels)
             logger.debug(f"match: {match}")
             return match
-        torch.cuda.set_device(0)
+        
         model.train_model(train_df, eval_data=eval_df, matches=count_matches)
         print(model.eval_model(eval_df, matches=count_matches))
 
     if args.do_predict:
-        model = T5Model(args.model_type, args.output_dir, args={"eval_batch_size": args.batch_size})
+        model = T5Model(args.model_type, args.output_dir, args={"eval_batch_size": args.batch_size}, evaluate=True)
         if not is_simple:
             test_data = load_json_data(args.prefix, args.test_file, 'test')
             test_df = pd.DataFrame(test_data, columns=["prefix", "input_text", "target_text"])

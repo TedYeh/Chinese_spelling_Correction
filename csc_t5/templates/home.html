@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Home</title>
+    <title>Chinese-Spelling Correction</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link
       rel="stylesheet"
-      href="{{url_for('static', filename='bootstrap/css/bootstrap.min.css')}}"
+      href="{{url_for('static', filename='bootstrap-5.2.3/css/bootstrap.min.css')}}"
     />
     <link
       rel="stylesheet"
@@ -12,7 +13,7 @@
     />
     <script src="{{url_for('static', filename='bootstrap/js/jquery-3.6.1.min.js')}}">
     </script>
-    <script src="{{url_for('static', filename='bootstrap/js/bootstrap.bundle.min.js')}}">
+    <script src="{{url_for('static', filename='bootstrap-5.2.3/js/bootstrap.bundle.min.js')}}">
     </script>
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:;">
   </head>
@@ -49,13 +50,27 @@
           </div>
           -->
           <div class="form-check form-check-inline">
-            <input type="checkbox" class="form-check-input" id="T5-Large" name="models" value="T5-Large" {{'checked' if 'T5-Large' in models else ''}}>
-            <label for="T5-Large" class="form-check-label">T5-Large</label>
+            <input type="radio" class="form-check-input" id="Spelling-T5-Large" name="models" value="Spelling-T5-Large" >
+            <label for="Spelling-T5-Large" class="form-check-label">Spelling-T5-Large</label>
           </div>
           <div class="form-check form-check-inline">
-            <input type="checkbox" class="form-check-input" id="T5-Base" name="models" value="T5-Base" checked>
-            <label for="T5-Base" class="form-check-label">T5-Base</label>
+            <input type="radio" class="form-check-input" id="Spelling-T5-Base" name="models" value="Spelling-T5-Base" checked>
+            <label for="Spelling-T5-Base" class="form-check-label">Spelling-T5-Base</label>
           </div>
+          <div class="form-check form-check-inline">
+            <input type="radio" class="form-check-input" id="Grammar-T5-Base" name="models" value="Grammar-T5-Base" >
+            <label for="Grammar-T5-Base" class="form-check-label">Grammar-T5-Base</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <!--<label for="correct-type" class="form-check-label">Correction type: </label>-->
+            <select name="prompt" id="prompt" class="form-select">
+              <option value="糾正句子中的錯字：">錯別字校正</option>
+              <option value="糾正句子中的錯誤：">文法校正</option>
+              <option value="在不改動文意的情況下改寫句子：">文本重構</option>
+              <option value="在不改動文意的情況下簡化句子：">文本簡化</option>
+              <option value="修改句子的錯誤或使其更通順：">整體校正</option>
+            </select>
+          </div>          
         </div>
         
         <div class="row">
@@ -101,18 +116,29 @@
         >我去公共車從大學到圖書權。</a>
         <a type="button" class="btn btn-outline-success" data-value="我們覺得你們可以理由他們的錢買更多的設備。"
         >我們覺得你們可以理由他們的錢買更多的設備。</a>
-        <a type="button" class="btn btn-outline-success" data-value="在家說，裝攝影機也意義學校不相信老師。"
-        >在家說，裝攝影機也意義學校不相信老師。</a>
         <a type="button" class="btn btn-outline-success" data-value="教室裡面不這麼對裝著相機，因為這樣老是跟學校不會說出來自己的想法跟看，老師也會不喜歡用自己的教法，而且這個貞的不是好辦法。"
         >教室裡面不這麼對裝著相機，因為這樣老是跟學校不會說出來自己的想法跟看，老師也會不喜歡用自己的教法，而且這個貞的不是好辦法。</a>
-        <button type="submit" class="btn btn-primary float-end">Run</button>
+        <a type="button" class="btn btn-outline-success" data-value="這名經謙學者指出，纔計劃經濟中國有奇業最大的功旨次保證指令性計劃的完成和超額完成，保證時會支援能雯中於中楊政府，以便經由制訂指令性濟劃配置。臺計劃經津迅速退出嘯史舞台後，時會主義市煬經濟迅湮鱗展和發掌貞續況下，如佝仍翼計劃津濟中國有企頁所發揮的功能來經和要求國有企業，將回使國有企業的改革檳入歧途，造捕到正確的馥徑。"
+        >這名經謙學者指出，纔計劃經濟中國有奇業最大的功旨次保證指令性計劃的完成和超額完成，保證時會支援能雯中於中楊政府，以便經由制訂指令性濟劃配置。臺計劃經津迅速退出嘯史舞台後，時會主義市煬經濟迅湮鱗展和發掌貞續況下，如佝仍翼計劃津濟中國有企頁所發揮的功能來經和要求國有企業，將回使國有企業的改革檳入歧途，造捕到正確的馥徑。</a>
+        <button id="submit" type="submit" class="btn btn-primary float-end">          
+          Run
+        </button>
 	    </div>
       <div class="col-lg-6">
 	      <label class="form-label">Output</label>
-        <div class="output-container border-top py-2">{{ results }}</div>
+        <div class="output-container border-top py-2" id="out_result">
+          {%- for i in range(results|length) -%}
+            {%- if i in diff_loc_list -%}
+            <span class='badge bg-danger'>{{results[i]}}</span>
+            {%- else -%}
+            {{results[i]}}
+            {%- endif -%}
+          {%- endfor -%}
           <br/>
         </div>
-    	  <script src="{{url_for('static', filename='js/script.js')}}"></script>
+    	  <script src="{{url_for('static', filename='js/script.js')}}">
+          //span_target({{results|safe}}, {{diff_loc_list|tojson}})
+        </script>
       </div>
     </form>
     </div>
