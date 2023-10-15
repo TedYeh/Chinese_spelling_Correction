@@ -1,8 +1,8 @@
 # Chinese Grammarly - Chinese Grammatical Error Correction
 
-<center>
-🤗<a href='https://huggingface.co/CodeTed/CGEDit'>Huggingface</a> • 📃<a>[Paper Coming Soon]</a> • 👨️<a href='https://github.com/TedYeh'>Cheng-Hung Yeh</a>
-</center>
+<p align='center'>
+🤗<a href='https://huggingface.co/CodeTed/CGEDit'>Huggingface</a> •📃<a href=''>[Paper Coming Soon]</a> •👨️<a href='https://github.com/TedYeh'>Cheng-Hung Yeh</a>
+</p>
 
 ![](img/interface.png) 
 
