@@ -14,6 +14,16 @@
     - Text Simplification: 21,061 sentences
     - Multi-Task: 43,733 sentences
 
+## Performance
+- For `Spelling-T5-Base`:
+| Model          | corpus | accuracy(↑) | recall(↑) | precision(↑) | F1-score(↑) | FA-Rate(↓) |
+|:----------------:|--------|-------------|-----------|--------------|-------------|------------|
+| T5-base        | 3.5e5  | 0.636       | 0.476     | 0.701        | 0.567       | 0.204      |
+| T5-base 271K TC| 2.71e5 | 0.749       | 0.616     | 0.831        | 0.708       | 0.122      |
+| T5-base        | 1.0e6  | 0.710       | 0.545     | 0.813        | 0.653       | 0.125      |
+| T5-large       | 3.5e5  | 0.686       | 0.535     | 0.768        | 0.630       | 0.162      |
+| T5-base簡體    | 2.71e5 | 0.715       | 0.587     | 0.782        | 0.671       | 0.160      |
+- For `Grammar-T5-Base`: (TBD)
 ## File
 
 ```
