@@ -75,7 +75,7 @@ def load_data(data):
     return train_dataset.to_pandas(), eval_dataset.to_pandas(), test_dataset.to_pandas()
 
 def normalize(text):
-    """简单的文本标准化"""
+    """文本標準化"""
     return ' '.join(text.lower().split())
 
 def main(is_simple = False):
