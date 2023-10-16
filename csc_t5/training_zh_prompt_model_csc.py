@@ -12,7 +12,6 @@ from sklearn.model_selection import train_test_split
 from datasets import load_dataset
 sys.path.append('../..')
 from t5.t5_model import T5Model
-from t5.copyt5_model import CopyT5Model
 from t5.t5_utils import f1_sim, rouge_l_zh
 from opencc import OpenCC
 
