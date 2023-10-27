@@ -144,17 +144,22 @@ class T5Model:
                     token = line.split('　')[0]
                     n+=1
                     self.tokenizer.add_tokens([token])
+            with open('./data/字音混淆集.txt', 'r', encoding='utf-8') as confusion:
+                for line in confusion.readlines():
+                    token = line.split('　')[0]
+                    n+=1
+                    self.tokenizer.add_tokens([token])
             with open('./data/wordtest4.txt', 'r', encoding='utf-8') as confusion:
                 for line in confusion.readlines():
                     token = line.split(',')[0]
                     n+=1
                     self.tokenizer.add_tokens([token])
-            '''
+            
             with open('./data/vocab.txt', 'r', encoding='utf-8') as confusion:
                 for line in confusion.readlines():
                     n+=1
                     self.tokenizer.add_tokens([line.replace('\n', '')])
-            '''
+            
             print(n)
         self.streamer = TextStreamer(self.tokenizer)
         print(len(self.tokenizer))

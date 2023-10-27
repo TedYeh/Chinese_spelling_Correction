@@ -4,11 +4,14 @@ from loguru import logger
 import asyncio
 sys.path.append("..")
 from t5.t5_model import T5Model
+import os
+os.environ['JOBLIB_TEMP_FOLDER'] = '/tmp'
 
 app = Flask(__name__)
 
 output_dir = './outputs/prompt_1m'
-csc = T5Model('t5', output_dir, args={"eval_batch_size": 1}, cuda_device=-1, evaluate=True)
+csc = T5Model('t5', output_dir, args={
+    "eval_batch_size": 1}, cuda_device=-1, evaluate=True)
 
 #output_dir = './outputs/prompt_cgedit'
 #csc_large = T5Model('t5', output_dir, args={"eval_batch_size": 1}, cuda_device=-1, evaluate=True)
@@ -17,6 +20,13 @@ output_dir = './outputs/prompt_cgedit'
 cged = T5Model('t5', output_dir, args={"eval_batch_size": 1}, cuda_device=-1, evaluate=True)
 
 help = """
+You can request the service by HTTP get: <br> 
+   http://0.0.0.0:5001/macbert_correct?text=我从北京南做高铁到南京南<br>
+   
+or HTTP post with json: <br>  
+   {"text":"xxxx"} <p>
+Post example: <br>
+  curl -H "Content-Type: application/json" -X POST -d '{"text":"我从北京南做高铁到南京南"}' http://0.0.0.0:5001/macbert_correct
 """
 
 def compare_str(src, tar): #for csc - compare the input sentence and prediction then tag the different part(location) 

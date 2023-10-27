@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 from datasets import load_dataset
 sys.path.append('../..')
 from t5.t5_model import T5Model
+from t5.copyt5_model import CopyT5Model
 from t5.t5_utils import f1_sim, rouge_l_zh
 from opencc import OpenCC
 
@@ -25,6 +26,7 @@ def load_json_data(prefix, file_path, data_type='train'):
             if line:
                 json_string = json.loads(line.strip())
                 if data_type == 'train':
+                    '''
                     input_text = json_string["original_text"] + "_輸出句："
                     target_text = json_string["correct_text"]
                     '''
@@ -35,10 +37,10 @@ def load_json_data(prefix, file_path, data_type='train'):
                     else: 
                         input_text = '找到句子中的錯字：' + json_string["original_text"] + "_錯別字："
                         target_text = json_string["wrong_chr"]
-                    '''
+                    
                 else:
                     input_text = '糾正句子中的錯字：' + json_string["original_text"] + "_輸出句："
-                    #input_text = json_string["original_text"]
+                    #input_text = json_string["original_text"] + "_輸出句："
                     target_text = json_string["correct_text"]
                 #answer_choices = json_string.get("answer_choices", [])
                 #type = json_string["type"]
@@ -74,7 +76,7 @@ def load_data(data):
     return train_dataset.to_pandas(), eval_dataset.to_pandas(), test_dataset.to_pandas()
 
 def normalize(text):
-    """文本標準化"""
+    """简单的文本标准化"""
     return ' '.join(text.lower().split())
 
 def main(is_simple = False):
@@ -82,22 +84,22 @@ def main(is_simple = False):
     parser.add_argument('--train_file', default='./data/cgedit.json', type=str, help='Training data file')
     parser.add_argument('--test_file', default='./data/csc_test.json', type=str, help='Test data file')
     parser.add_argument('--model_type', default='t5', type=str, help='Transformers model type')
-    parser.add_argument('--model_name', default='ClueAI/PromptCLUE-base-v1-5', type=str, help='Transformers model or path')
+    parser.add_argument('--model_name', default='./outputs/prompt_1m', type=str, help='Transformers model or path')
     parser.add_argument('--do_train', action='store_true', help='Whether to run training.')
     parser.add_argument('--do_predict', action='store_true', help='Whether to run predict.')
     parser.add_argument('--prefix', default='prompt', type=str, help='Prefix str')
-    parser.add_argument('--output_dir', default='./outputs/prompt_cgedit', type=str, help='Model output directory')
+    parser.add_argument('--output_dir', default='./outputs/prompt_cgedit_with_pretrain', type=str, help='Model output directory')
     parser.add_argument('--max_seq_length', default=200, type=int, help='Input max sequence length')
-    parser.add_argument('--max_length', default=512, type=int, help='Output max sequence length')
+    parser.add_argument('--max_length', default=400, type=int, help='Output max sequence length')
     parser.add_argument('--num_epochs', default=20, type=int, help='Number of training epochs')
-    parser.add_argument('--batch_size', default=32, type=int, help='Batch size')
+    parser.add_argument('--batch_size', default=40, type=int, help='Batch size')
     args = parser.parse_args()
     logger.info(args)
     torch.cuda.set_device(0)
     if args.do_train:
         logger.info('Loading data...')
         if not is_simple:
-            train_data = load_json_data(args.prefix, args.train_file, 'train')
+            train_data = load_json_data(args.prefix, args.train_file, 'test')
             logger.debug('train_data: {}'.format(train_data[:10]))
             train_df = pd.DataFrame(train_data, columns=["prefix", "input_text", "target_text"])
             train_df, eval_df = train_test_split(train_df, test_size=0.05, random_state=2023)
@@ -160,7 +162,7 @@ def main(is_simple = False):
                 ]
         test_df['predict_after'] = model.predict(to_predict)
         out_df = test_df[["input_text", "target_text", 'predict_after']]
-        out_df.to_json('test_result.json', force_ascii=False, orient='records', lines=True)
+        out_df.to_json(f'{args.output_dir}/test_result.json', force_ascii=False, orient='records', lines=True)
         
 
 
