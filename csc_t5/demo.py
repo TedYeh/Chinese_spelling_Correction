@@ -46,14 +46,20 @@ async def t5_correct():
     diff_loc_list = []
     model = {'Spelling-T5-Base': csc, 'Grammar-T5-Base': cged}    
     if request.method == 'POST':
-        text = request.form['input']
-        select_model = request.form['models']
+        text = request.form['input'] #取得輸入框內容
+        select_model = request.form['models'] #取得使用哪個模型
         prompt = {'Spelling-T5-Base': '糾正句子中的錯字：', 'Grammar-T5-Base': request.form['prompt']}
+        
+        #在後端顯示輸入句、選擇模型及使用的提示
         logger.info("Received data: {}".format(text))
         logger.info("Use model: {}".format(select_model))
         logger.info("Prompt: {}".format(prompt[select_model]))
+        
+        #將提示和輸入句輸入至模型進行預測
         results = await do_correct(model[select_model], [prompt[select_model] + text + "_輸出句："])
         if len(text) == len(results[0]): diff_loc_list = compare_str(text, results[0])
+
+        #將模型輸出放至html檔
         return render_template('home.html', inp_text=text, results=results[0], diff_loc_list=diff_loc_list)
     src = '為了降低少子化，政府可以堆動獎勵生育的政策。'
     tar = '為了降低少子化，政府可以推動獎勵生育的政策。'
